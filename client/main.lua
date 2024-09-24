@@ -10,9 +10,7 @@ Citizen.CreateThread(function()
     FreezeEntityPosition(spawnedPed, true)
     SetEntityInvincible(spawnedPed, true)
     SetBlockingOfNonTemporaryEvents(spawnedPed, true)
-
-    -- Integrasi dengan qb-target
-    if exports['qb-target'] then
+    if Config.TargetSystem == 'qb-target' and exports['qb-target'] then
         exports['qb-target']:AddTargetEntity(spawnedPed, {
             options = {
                 {
@@ -24,10 +22,7 @@ Citizen.CreateThread(function()
             },
             distance = 2.5
         })
-    end
-
-    -- Integrasi dengan ox-target
-    if exports['ox_target'] then
+    elseif Config.TargetSystem == 'ox_target' and exports['ox_target'] then
         exports['ox_target']:AddTargetEntity(spawnedPed, {
             {
                 name = "claimStarterpack",
@@ -39,8 +34,11 @@ Citizen.CreateThread(function()
                 distance = 2.5
             }
         })
+    else
+        print("Target system not configured or missing dependencies.")
     end
 end)
+
 
 RegisterNetEvent('starterpack:client:claimStarterpack', function()
     QBCore.Functions.TriggerCallback('starterpack:server:canClaim', function(canClaim)
@@ -88,8 +86,6 @@ AddEventHandler('starterpack:client:spawnVehicle', function(citizenid)
         local plate = QBCore.Functions.GetPlate(vehicle)
         SetVehicleNumberPlateText(vehicle, plate)
         TaskWarpPedIntoVehicle(PlayerPedId(), vehicle, -1)
-        
-        -- Memberikan kunci kendaraan
         TriggerServerEvent('starterpack:server:giveVehicleKey', plate)
         TriggerEvent('qb-vehiclekeys:client:AddKeys', plate)
     else
